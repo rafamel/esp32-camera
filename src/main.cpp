@@ -6,6 +6,8 @@
 #include "camera/camera.h"
 #include "configuration.h"
 
+void start_server();
+
 void setup() {
   // Serial port for debugging purposes
   Serial.begin(115200);
@@ -59,6 +61,9 @@ void setup() {
 
   /* Start camera */
   ESP_ERROR_CHECK(start_camera());
+
+  /* Start server */
+  start_server();
 }
 
 void loop() {

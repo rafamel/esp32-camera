@@ -17,6 +17,9 @@
 /* Services */
 #define HOST_NAME "camera"
 
+/* Server */
+#define SERVER_PORT 80
+
 /* Access Point */
 #define ENABLE_ACCESS_POINT true
 #define ACCESS_POINT_SSID "Camera"
