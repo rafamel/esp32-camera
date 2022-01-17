@@ -11,6 +11,9 @@
 /* Camera Features */
 #define CAMERA_MAX_FPS 60
 
+/* Status LED */
+#define STATUS_LED_PIN 4
+
 /* Services */
 #define HOST_NAME "camera"
 

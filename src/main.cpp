@@ -45,6 +45,18 @@ void setup() {
     Serial.println("Error setting up MDNS");
   }
 
+  /* Setup Status LED */
+  pinMode(STATUS_LED_PIN, OUTPUT);
+
+  /* Flash LED x5 */
+  int i;
+  for (i = 1; i <= 5; i += 1) {
+    delay(500);
+    digitalWrite(STATUS_LED_PIN, HIGH);
+    delay(100);
+    digitalWrite(STATUS_LED_PIN, LOW);
+  }
+
   /* Start camera */
   ESP_ERROR_CHECK(start_camera());
 }
