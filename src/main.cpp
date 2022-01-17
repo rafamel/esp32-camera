@@ -3,6 +3,7 @@
 #include <SPIFFS.h>
 #include "Arduino.h"
 
+#include "camera/camera.h"
 #include "configuration.h"
 
 void setup() {
@@ -43,6 +44,9 @@ void setup() {
   } else {
     Serial.println("Error setting up MDNS");
   }
+
+  /* Start camera */
+  ESP_ERROR_CHECK(start_camera());
 }
 
 void loop() {
