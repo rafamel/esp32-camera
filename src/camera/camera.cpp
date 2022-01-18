@@ -1,5 +1,6 @@
-#include "esp_camera.h"
 #include "Arduino.h"
+#include "esp_camera.h"
+#include "result.h"
 
 #include "../configuration.h"
 #include "camera_pins.h"
@@ -13,7 +14,7 @@ static camera_capture_t capture_b;
 static int capture_a_subs = 0;
 static int capture_b_subs = 0;
 
-esp_err_t start_camera() {
+result_t start_camera() {
   /* Configure camera */
   camera_config_t config;
 
@@ -57,11 +58,11 @@ esp_err_t start_camera() {
 
   /* Initialize camera */
   esp_err_t err = esp_camera_init(&config);
-  if (err != ESP_OK) return err;
+  if (err != ESP_OK) return RESULT_FAIL;
 
   /* Mofify camera defaults */
   sensor_t* s = esp_camera_sensor_get();
-  if (s == NULL) return ESP_FAIL;
+  if (s == NULL) return RESULT_FAIL;
 
   // drop down frame size for higher initial frame rate
   s->set_framesize(s, FRAMESIZE_QVGA);
@@ -79,7 +80,7 @@ esp_err_t start_camera() {
   #endif
 
   Serial.println("Camera: start");
-  return ESP_OK;
+  return RESULT_OK;
 }
 
 const char* get_camera_model() {
@@ -131,11 +132,11 @@ char* get_json_camera_status() {
   return json_response;
 }
 
-esp_err_t set_camera_status_property(const char* property, int value) {
+result_t set_camera_status_property(const char* property, int value) {
   int res = 0;
   sensor_t* s = esp_camera_sensor_get();
   
-  if (s == NULL) return ESP_FAIL;
+  if (s == NULL) return RESULT_FAIL;
 
   if (!strcmp(property, "framesize")) {
     if (s->pixformat == PIXFORMAT_JPEG) {
@@ -191,10 +192,10 @@ esp_err_t set_camera_status_property(const char* property, int value) {
     if (value > 0) digitalWrite(STATUS_LED_PIN, HIGH);
     else digitalWrite(STATUS_LED_PIN, LOW);
   } else {
-    return ESP_FAIL;
+    return RESULT_FAIL;
   }
 
-  return res ? ESP_FAIL : ESP_OK;
+  return res ? RESULT_FAIL : RESULT_OK;
 }
 
 camera_capture_t* get_camera_capture() {
@@ -243,7 +244,7 @@ camera_capture_t* get_camera_capture() {
   int64_t time_end = esp_timer_get_time();
   int64_t frame_time = last_frame > 0 
     ? (time_start - last_frame) / 1000
-    : (time_end - time_start) / 1000;
+    : 100000;
 
   Serial.printf(
     "Camera capture: %uB %ums (%.1ffps)\r\n",

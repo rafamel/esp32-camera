@@ -1,8 +1,8 @@
 #include <sys/stat.h>
-
 #include "Arduino.h"
 #include "esp_http_server.h"
 #include "FS.h"
+#include "http.h"
 
 #include "../../configuration.h"
 #include "../../camera/camera.h"

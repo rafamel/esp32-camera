@@ -1,8 +1,10 @@
+#include "http.h"
+
 /* Types */
 typedef struct {
   size_t len;
   uint8_t* buf;
-  const char* status;
+  http_code_t status;
   const char* contentType;
   const char* headerName;
   const char* headerValue;

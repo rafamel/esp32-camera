@@ -1,4 +1,5 @@
 #include "Arduino.h"
+#include "http.h"
 
 #include "../../camera/camera.h"
 #include "../../configuration.h"
@@ -6,7 +7,7 @@
 #include "./handlers.h"
 
 static handler_response_t* create_response(
-  const char* status,
+  http_code_t status,
   const char* contentType,
   char* str
 ) {

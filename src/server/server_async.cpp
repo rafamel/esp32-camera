@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
+#include "result.h"
 
 #include "../configuration.h"
 #include "./handlers/handlers.h"
@@ -28,7 +29,7 @@ static void execute_handler(
   req->send(response);
 }
 
-void start_server_async() {
+result_t start_server_async() {
   // Create AsyncWebServer object
   static AsyncWebServer server(SERVER_PORT);
 
@@ -88,4 +89,6 @@ void start_server_async() {
   /* Start server */
   Serial.printf("Web server: %d\n", SERVER_PORT);
   server.begin();
+
+  return RESULT_OK;
 }

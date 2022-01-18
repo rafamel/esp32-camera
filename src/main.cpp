@@ -2,14 +2,17 @@
 #include <ESPmDNS.h>
 #include <SPIFFS.h>
 #include "Arduino.h"
+#include "result.h"
 
 #include "camera/camera.h"
 #include "configuration.h"
 
-void start_server_async();
-esp_err_t start_server_sync();
+result_t start_server_sync();
+result_t start_server_async();
 
 void setup() {
+  result_t res = RESULT_OK;
+
   // Serial port for debugging purposes
   Serial.begin(115200);
   Serial.setDebugOutput(true);
@@ -19,8 +22,8 @@ void setup() {
   if (SPIFFS.begin(true)) {
     Serial.println("FS: start");
   } else {
+    res = RESULT_FAIL;
     Serial.println("FS: an error has occurred while mounting SPIFFS");
-    ESP_ERROR_CHECK(ESP_FAIL);
   }
 
   /* WiFi Connection */
@@ -28,6 +31,15 @@ void setup() {
     WiFi.begin(WIFI_CONNECTION_SSID, WIFI_CONNECTION_PASSWORD);
     Serial.print("Connecting to WiFi: ");
     Serial.println(WIFI_CONNECTION_SSID);
+    // delay(500);
+    // while (WiFi.status() != WL_CONNECTED) {
+    //   Serial.print(".");
+    //   delay(500);
+    // }
+    // IPAddress WIFI_IP = WiFi.localIP();
+    // Serial.println("");
+    // Serial.print("WiFi IP: ");
+    // Serial.println(WIFI_IP);
   #endif
 
   /* Access Point */
@@ -45,6 +57,7 @@ void setup() {
     Serial.print("MDNS Host: ");
     Serial.println(HOST_NAME);
   } else {
+    res = RESULT_FAIL;
     Serial.println("Error setting up MDNS");
   }
 
@@ -61,14 +74,16 @@ void setup() {
   }
 
   /* Start camera */
-  ESP_ERROR_CHECK(start_camera());
+  if (start_camera() != RESULT_OK) res = RESULT_FAIL;
 
   /* Start server */
   #if SERVER_ASYNC
-    start_server_async();
+    if (start_server_async() != RESULT_OK) res = RESULT_FAIL;
   #else
-    ESP_ERROR_CHECK(start_server_sync());
+    if (start_server_sync() != RESULT_OK) res = RESULT_FAIL;
   #endif
+
+  if (res != RESULT_OK) exit(EXIT_FAILURE);
 }
 
 void loop() {

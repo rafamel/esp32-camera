@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "esp_http_server.h"
 #include "SPIFFS.h"
+#include "result.h"
 
 #include "../configuration.h"
 #include "./handlers/handlers.h"
@@ -23,7 +24,7 @@ static esp_err_t execute_handler(httpd_req_t *req, handler_response_t* res) {
   return err;
 }
 
-esp_err_t start_server_sync() {
+result_t start_server_sync() {
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
 
   /* Web */
@@ -33,7 +34,7 @@ esp_err_t start_server_sync() {
 
   if (httpd_start(&web_httpd, &config) != ESP_OK) {
     Serial.printf("Web server: fail");
-    return ESP_FAIL;
+    return RESULT_FAIL;
   }
 
   httpd_uri_t index_uri = {
@@ -147,7 +148,7 @@ esp_err_t start_server_sync() {
 
   if (httpd_start(&stream_httpd, &config) != ESP_OK) {
     Serial.printf("Stream server: fail");
-    return ESP_FAIL;
+    return RESULT_FAIL;
   }
 
   httpd_uri_t stream_uri = {
@@ -159,5 +160,5 @@ esp_err_t start_server_sync() {
   httpd_register_uri_handler(stream_httpd, &stream_uri);
 
   Serial.printf("Stream server: %d\n", config.server_port);
-  return ESP_OK;
+  return RESULT_OK;
 }
