@@ -1,10 +1,22 @@
-new Promise(function (resolve) {
-  document.addEventListener('DOMContentLoaded', function () {
-    resolve();
-  });
-}).then(function () {
+Promise.all([
+  fetch('./api/params').then(function (res) {
+    return res.json();
+  }),
+  new Promise(function (resolve) {
+    document.addEventListener('DOMContentLoaded', function () {
+      resolve();
+    });
+  })
+]).then(function (arr) {
+  const params = arr[0];
+  const serverPort = document.location.port;
   const serverUrl = document.location.origin;
-  const streamUrl = serverUrl;
+  const baseUrl = serverPort
+    ? serverUrl.slice(0, -(serverPort.length + 1))
+    : serverUrl;
+  const streamUrl = params.streamPort == 80
+    ? serverUrl
+    : baseUrl.replace(/\/$/, '') + ':' + String(params.streamPort);
 
   const hide = (el) => {
     el.classList.add('hidden');
@@ -62,7 +74,7 @@ new Promise(function (resolve) {
         return;
     }
 
-    const query = `${serverUrl}/control?property=${el.id}&value=${value}`;
+    const query = `${serverUrl}/api/control?property=${el.id}&value=${value}`;
 
     fetch(query).then((response) => {
       console.log(`request to ${query} finished, status: ${response.status}`);
@@ -76,7 +88,7 @@ new Promise(function (resolve) {
   });
 
   // read initial values
-  fetch(`${serverUrl}/status`)
+  fetch(`${serverUrl}/api/status`)
     .then(function (response) {
       return response.json();
     })

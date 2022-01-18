@@ -19,6 +19,7 @@
 
 /* Server */
 #define SERVER_PORT 80
+#define SERVER_ASYNC false
 
 /* Access Point */
 #define ENABLE_ACCESS_POINT true

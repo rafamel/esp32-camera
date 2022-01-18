@@ -6,7 +6,8 @@
 #include "camera/camera.h"
 #include "configuration.h"
 
-void start_server();
+void start_server_async();
+esp_err_t start_server_sync();
 
 void setup() {
   // Serial port for debugging purposes
@@ -63,7 +64,11 @@ void setup() {
   ESP_ERROR_CHECK(start_camera());
 
   /* Start server */
-  start_server();
+  #if SERVER_ASYNC
+    start_server_async();
+  #else
+    ESP_ERROR_CHECK(start_server_sync());
+  #endif
 }
 
 void loop() {

@@ -1,10 +1,32 @@
+#include "Arduino.h"
 #include "ESPAsyncWebServer.h"
 
-#include "../configuration.h"
-#include "../camera/camera.h"
-#include "./definitions.h"
+#include "../../configuration.h"
+#include "../../camera/camera.h"
+#include "./constants.h"
 
-void stream_handler(AsyncWebServerRequest *request) {
+void handler_capture_async(AsyncWebServerRequest *request) {
+  camera_capture_t* capture = get_camera_capture();
+  if (capture == NULL) return request->send(500);
+
+  request->onDisconnect([capture]() {
+    release_camera_capture(capture);
+  });
+
+  AsyncWebServerResponse *response = request->beginResponse_P(
+    200,
+    "image/jpeg",
+    capture->buf,
+    capture->len
+  );
+  response->addHeader(
+    "Content-Disposition",
+    "inline; filename=capture.jpg"
+  );
+  request->send(response);
+}
+
+void handler_stream_async(AsyncWebServerRequest *request) {
   Serial.println("Camera stream: start");
 
   // Allocate memory to pointers
@@ -64,7 +86,7 @@ void stream_handler(AsyncWebServerRequest *request) {
         }
         case 1: {
           if (*cycle_part == NULL) {
-            *cycle_part = (char*) malloc(sizeof(char) * 64);
+            *cycle_part = (char*) malloc((sizeof(char) * 64) + 1);
             *data_len = snprintf(
               (char *)(*cycle_part),
               64,
