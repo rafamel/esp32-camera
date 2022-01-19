@@ -60,6 +60,7 @@ handler_response_t* handler_api_status() {
   StaticJsonDocument<1024> doc;
 
   get_camera_status(&doc);
+  doc["flashled"] = digitalRead(STATUS_LED_PIN) == HIGH ? 1 : 0;
 
   String json;
   return serializeJsonPretty(doc, json)
