@@ -3,8 +3,9 @@
 #include "result.h"
 
 typedef struct {
-  uint8_t *buf;
+  uint8_t* buf;
   size_t len;
+  int subs;
 } camera_capture_t;
 
 result_t start_camera();

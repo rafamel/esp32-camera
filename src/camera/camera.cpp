@@ -8,12 +8,7 @@
 #include "camera.h"
 
 static camera_fb_t* fb = NULL;
-static bool keep_fb = false;
-static camera_capture_t capture_fb;
-static camera_capture_t capture_a;
-static camera_capture_t capture_b;
-static int capture_a_subs = 0;
-static int capture_b_subs = 0;
+static camera_capture_t* capture_fb = NULL;
 
 result_t start_camera() {
   /* Configure camera */
@@ -87,10 +82,7 @@ result_t start_camera() {
 const char* get_camera_model() {
   sensor_t* s = esp_camera_sensor_get();
 
-  if (s->id.PID == OV3660_PID) {
-    return "OV3660";
-  }
-  return "OV2640";
+  return (s->id.PID == OV3660_PID) ? "OV3660" : "OV2640";
 }
 
 result_t get_camera_status(JsonDocument* doc) {
@@ -195,39 +187,24 @@ result_t set_camera_status_property(const char* property, int value) {
 camera_capture_t* get_camera_capture() {
   static int64_t last_frame = 0;
 
-  if (keep_fb) {
-    Serial.println("Camera capture: cache");
-    if (capture_a_subs > 0 && capture_b_subs <= 0) {
-      capture_b = capture_a;
-      capture_b_subs = capture_a_subs;
-      capture_a_subs = 0;
-    }
-
-    if (capture_a_subs <= 0) {
-      uint8_t* buf = (uint8_t*) malloc(capture_fb.len);
-      memcpy(buf, capture_fb.buf, capture_fb.len);
-      capture_a = { buf, capture_fb.len };
-    }
-    
-    capture_a_subs += 1;
-    return &capture_a;
-  }
-  
   int64_t time_start = esp_timer_get_time();
-  if (
-    last_frame > 0 && 
-    (time_start - last_frame) < (1000000.0 / CAMERA_MAX_FPS)
-  ) {
-    keep_fb = true;
-    return &capture_fb;
+  float fps = last_frame > 0
+    ? (1000.0 / ((time_start - last_frame) / 1000.0))
+    : 0.0;
+  bool fps_limit = fps > CAMERA_MAX_FPS;
+
+  if (fb != NULL || fps_limit) {
+    capture_fb->subs += 1;
+
+    Serial.println("Camera capture: cache");
+    return capture_fb;
   }
-  
-  if (fb != NULL) esp_camera_fb_return(fb);
+
   fb = esp_camera_fb_get();
 
   if (fb == NULL) {
     Serial.println("Camera capture: frame request error");
-    return NULL;
+    return get_camera_capture();
   }
 
   if (fb->format != PIXFORMAT_JPEG) {
@@ -235,39 +212,48 @@ camera_capture_t* get_camera_capture() {
     return NULL;
   }
 
-  int64_t time_end = esp_timer_get_time();
-  int64_t frame_time = last_frame > 0 
-    ? (time_start - last_frame) / 1000
-    : 100000;
+  camera_capture_t* capture = 
+    (camera_capture_t*) malloc(sizeof(camera_capture_t));
+  size_t capture_len = fb->len;
+  uint8_t* capture_buf = (uint8_t*) malloc(capture_len);
+  memcpy(capture_buf, fb->buf, capture_len);
+  *capture = { capture_buf, capture_len, 1 };
 
+  if (capture_fb != NULL && capture_fb->subs <= 0) {
+    free(capture_fb->buf);
+    free(capture_fb);
+  }
+
+  capture_fb = capture;
+  last_frame = time_start;
+
+  int64_t time_end = esp_timer_get_time();
   Serial.printf(
     "Camera capture: %uB %ums (%.1ffps)\r\n",
     (uint32_t)(fb->len),
     (uint32_t)((time_end - time_start) / 1000),
-    1000.0 / (uint32_t)frame_time
+    fps
   );
 
-  keep_fb = true;
-  last_frame = time_start;
-  capture_fb = { fb->buf, fb->len };
-  return &capture_fb;
+  return capture;
 }
 
 bool release_camera_capture(camera_capture_t* capture) {
-  if (keep_fb && capture == &capture_fb) {
-    keep_fb = false;
+  if (capture == NULL) return false;
+
+  capture->subs -= 1;
+
+  if (capture == capture_fb) {
+    if (fb != NULL) {
+      esp_camera_fb_return(fb);
+      fb = NULL;
+    }
     return true;
   }
 
-  if (capture_b_subs > 0 && capture == &capture_b) {
-    capture_b_subs -= 1;
-    if (capture_b_subs == 0) free(capture_b.buf);
-    return true;
-  }
-
-  if (capture_a_subs > 0 && capture == &capture_a) {
-    capture_a_subs -= 1;
-    if (capture_a_subs == 0) free(capture_a.buf);
+  if (capture->subs <= 0) {
+    free(capture->buf);
+    free(capture);
     return true;
   }
 
