@@ -46,27 +46,25 @@ handler_response_t* handler_redirect(const char* location) {
 }
 
 handler_response_t* handler_api_params() {
-  static int port = SERVER_ASYNC ? SERVER_PORT : SERVER_PORT + 1;
+  StaticJsonDocument<512> doc;
 
-  char p[1024];
-  char* i = p;
+  doc["streamPort"] = SERVER_ASYNC ? SERVER_PORT : SERVER_PORT + 1;
 
-  *i++ = '{';
-  i += sprintf(i, " \"streamPort\": %d,", port);
-  i += sprintf(i, " \"cameraModel\": \"%s\" ", "OV2640");
-  *i++ = '}';
-  *i++ = 0;
-
-  handler_response_t* res = create_response(HTTP_200, "application/json", p);
-  return res;
+  String json;
+  return serializeJsonPretty(doc, json)
+    ? create_response(HTTP_200, "application/json", (char*) json.c_str())
+    : create_response(HTTP_500, "application/json", (char*) API_ERROR);
 }
 
 handler_response_t* handler_api_status() {
-  char* status = get_json_camera_status();
+  StaticJsonDocument<1024> doc;
 
-  return status == NULL
-    ? create_response(HTTP_500, "application/json", (char*) API_ERROR)
-    : create_response(HTTP_200, "application/json", status);
+  get_camera_status(&doc);
+
+  String json;
+  return serializeJsonPretty(doc, json)
+    ? create_response(HTTP_200, "application/json", (char*) json.c_str())
+    : create_response(HTTP_500, "application/json", (char*) API_ERROR);
 }
 
 handler_response_t* handler_api_control(char* property, char* value) {
