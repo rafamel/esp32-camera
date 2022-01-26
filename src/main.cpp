@@ -29,7 +29,7 @@ void setup() {
   /* WiFi Connection */
   #if ENABLE_WIFI_CONNECTION
     WiFi.begin(WIFI_CONNECTION_SSID, WIFI_CONNECTION_PASSWORD);
-    Serial.print("Connecting to WiFi: ");
+    Serial.print("WiFi: connect");
     Serial.println(WIFI_CONNECTION_SSID);
   #endif
 
@@ -77,5 +77,17 @@ void setup() {
 }
 
 void loop() {
-  delay(10000);
+  static bool connected = false;
+
+  if (!connected && WiFi.status() == WL_CONNECTED) {
+    connected = true;
+
+    IPAddress WIFI_IP = WiFi.localIP();
+    Serial.print("WiFi SSID: ");
+    Serial.println(WIFI_CONNECTION_SSID);
+    Serial.print("WiFi IP: ");
+    Serial.println(WIFI_IP);
+  }
+
+  delay(5000);
 }
