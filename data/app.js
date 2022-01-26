@@ -13,26 +13,22 @@ Promise.all([
     const baseUrl = serverPort
       ? serverUrl.slice(0, -(serverPort.length + 1))
       : serverUrl;
-    const streamUrl = params.streamPort == 80
-      ? serverUrl
-      : baseUrl.replace(/\/$/, '') + ':' + String(params.streamPort);
+    const streamUrl =
+      params.streamPort == 80
+        ? serverUrl
+        : baseUrl.replace(/\/$/, '') + ':' + String(params.streamPort);
 
     start({ serverUrl, streamUrl });
   }, 0);
 
-  render(
-    html`<${App} params=${params} cameras=${cameras} />`,
-    document.body
-  );
+  render(html`<${App} params=${params} cameras=${cameras} />`, document.body);
 });
 
 function App({ params, cameras }) {
   return html`
     <section class="main">
       <div id="logo">
-        <label for="nav-toggle-cb" id="nav-toggle">
-          ☰ Settings
-        </label>
+        <label for="nav-toggle-cb" id="nav-toggle"> ☰ Settings </label>
       </div>
       <div id="content">
         <div id="sidebar">
@@ -58,8 +54,8 @@ function Menu({ params, cameras }) {
       id: key,
       type: item.type,
       name: item.name,
-      values: item.values 
-        && Object.hasOwnProperty.call(item.values, cameraModel) 
+      values:
+        item.values && Object.hasOwnProperty.call(item.values, cameraModel)
           ? item.values[cameraModel]
           : item.defaults
     }))
@@ -69,7 +65,7 @@ function Menu({ params, cameras }) {
       if (item.type === 'switch') return html`<${Switch} ...${item} />`;
       return null;
     })
-    .filter(item => Boolean(item));
+    .filter((item) => Boolean(item));
 
   return html`
     <nav id="menu">
@@ -83,8 +79,9 @@ function Menu({ params, cameras }) {
 }
 
 function Select({ id, name, values }) {
-  const options = Object.entries(values)
-    .map((item) => html`<option value="${item[0]}">${item[1]}</option>`);
+  const options = Object.entries(values).map(
+    (item) => html`<option value="${item[0]}">${item[1]}</option>`
+  );
 
   return html`
     <div class="input-group" id="${id}-group">
@@ -131,10 +128,9 @@ function Switch({ id, name }) {
 }
 
 function start({ serverUrl, streamUrl }) {
-
   let queue = Promise.resolve();
-  const hide = (el) => el ? el.classList.add('hidden') : undefined;
-  const show = (el) => el ? el.classList.remove('hidden') : undefined;
+  const hide = (el) => (el ? el.classList.add('hidden') : undefined);
+  const show = (el) => (el ? el.classList.remove('hidden') : undefined);
 
   function updateConfig(el) {
     let value;
@@ -160,10 +156,8 @@ function start({ serverUrl, streamUrl }) {
           `${serverUrl}/api/control?property=${el.id}&value=${value}`
         );
       })
-      .then((res) => {
-        console.log(
-          `Finished request to control endpoint, status: ${res.status}`
-        );
+      .then(() => {
+        console.log(`${el.id}: ${value}`);
       })
       .catch((err) => {
         console.error(err);
@@ -201,7 +195,7 @@ function start({ serverUrl, streamUrl }) {
         value ? show(wb) : hide(wb);
       }
     }
-  };
+  }
 
   function hydrateElements() {
     queue = queue
@@ -212,10 +206,10 @@ function start({ serverUrl, streamUrl }) {
           updateValue(el, state[el.id], false);
         });
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
         setTimeout(hydrateElements, 2500);
-      })
+      });
   }
 
   document.querySelectorAll('.close').forEach((el) => {
@@ -232,7 +226,7 @@ function start({ serverUrl, streamUrl }) {
   const closeButton = document.getElementById('close-stream');
 
   const stopStream = () => {
-    queue = queue.then(() => window.stop())
+    queue = queue.then(() => window.stop());
     streamButton.innerHTML = 'Start Stream';
   };
 
@@ -250,7 +244,7 @@ function start({ serverUrl, streamUrl }) {
     queue = queue
       .then(() => new Promise((resolve) => setTimeout(resolve, 100)))
       .then(() => {
-        view.src = `${serverUrl}/capture?_cb=${Date.now()}`
+        view.src = `${serverUrl}/capture?_cb=${Date.now()}`;
         show(viewContainer);
       });
   };
