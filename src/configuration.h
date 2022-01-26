@@ -8,9 +8,6 @@
 #define CAMERA_MODEL_AI_THINKER // Has PSRAM
 //#define CAMERA_MODEL_TTGO_T_JOURNAL // No PSRAM
 
-/* Camera Features */
-#define CAMERA_MAX_FPS 60
-
 /* Status LED */
 #define STATUS_LED_PIN 4
 

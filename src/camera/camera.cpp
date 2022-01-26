@@ -8,7 +8,7 @@
 #include "camera.h"
 
 static camera_fb_t* fb = NULL;
-static camera_capture_t* capture_fb = NULL;
+static camera_capture_t* capture_cp = NULL;
 
 result_t start_camera() {
   /* Configure camera */
@@ -186,21 +186,26 @@ result_t set_camera_status_property(const char* property, int value) {
 
 camera_capture_t* get_camera_capture() {
   static int64_t last_frame = 0;
+  static camera_capture_t capture_fb;
 
-  int64_t time_start = esp_timer_get_time();
-  float fps = last_frame > 0
-    ? (1000.0 / ((time_start - last_frame) / 1000.0))
-    : 0.0;
-  bool fps_limit = fps > CAMERA_MAX_FPS;
-
-  if (fb != NULL || fps_limit) {
-    capture_fb->subs += 1;
+  if (fb != NULL) {
+    if (capture_cp == NULL) {
+      capture_cp = (camera_capture_t*) malloc(sizeof(camera_capture_t));
+      size_t capture_len = fb->len;
+      uint8_t* capture_buf = (uint8_t*) malloc(capture_len);
+      memcpy(capture_buf, fb->buf, capture_len);
+      *capture_cp = { capture_buf, capture_len, 1 };
+    } else {
+      capture_cp->subs += 1;
+    }
 
     Serial.println("Camera capture: cache");
-    return capture_fb;
+    return capture_cp;
   }
 
+  int64_t time_start = esp_timer_get_time();
   fb = esp_camera_fb_get();
+  capture_cp = NULL;
 
   if (fb == NULL) {
     Serial.println("Camera capture: frame request error");
@@ -212,22 +217,11 @@ camera_capture_t* get_camera_capture() {
     return NULL;
   }
 
-  camera_capture_t* capture = 
-    (camera_capture_t*) malloc(sizeof(camera_capture_t));
-  size_t capture_len = fb->len;
-  uint8_t* capture_buf = (uint8_t*) malloc(capture_len);
-  memcpy(capture_buf, fb->buf, capture_len);
-  *capture = { capture_buf, capture_len, 1 };
-
-  if (capture_fb != NULL && capture_fb->subs <= 0) {
-    free(capture_fb->buf);
-    free(capture_fb);
-  }
-
-  capture_fb = capture;
-  last_frame = time_start;
-
   int64_t time_end = esp_timer_get_time();
+  float fps = last_frame > 0
+    ? (1000.0 / ((time_end - last_frame) / 1000.0))
+    : 0.0;
+  last_frame = time_end;
   Serial.printf(
     "Camera capture: %uB %ums (%.1ffps)\r\n",
     (uint32_t)(fb->len),
@@ -235,27 +229,24 @@ camera_capture_t* get_camera_capture() {
     fps
   );
 
-  return capture;
+  capture_fb = { fb->buf, fb->len, 1 };
+  return &capture_fb;
 }
 
 bool release_camera_capture(camera_capture_t* capture) {
   if (capture == NULL) return false;
 
   capture->subs -= 1;
+  if (capture->subs > 0) return false;
 
-  if (capture == capture_fb) {
-    if (fb != NULL) {
-      esp_camera_fb_return(fb);
-      fb = NULL;
-    }
+  if (fb != NULL && capture->buf == fb->buf) {
+    esp_camera_fb_return(fb);
+    fb = NULL;
     return true;
   }
 
-  if (capture->subs <= 0) {
-    free(capture->buf);
-    free(capture);
-    return true;
-  }
-
-  return false;
+  if (capture == capture_cp) capture_cp = NULL;
+  free(capture->buf);
+  free(capture);
+  return true;
 }
