@@ -1,8 +1,3 @@
-/* API */
-#define API_ERROR "{ \"error\": true }"
-#define API_SUCCESS "{ \"success\": true }"
-
-/* Streams */
 #define STREAM_PART_BOUNDARY "123456789000000000000987654321"
 #define STREAM_CONTENT_TYPE "multipart/x-mixed-replace;boundary=" STREAM_PART_BOUNDARY
 #define STREAM_BOUNDARY "\r\n--" STREAM_PART_BOUNDARY "\r\n"

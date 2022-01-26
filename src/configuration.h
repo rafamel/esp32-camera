@@ -15,8 +15,8 @@
 #define HOST_NAME "camera"
 
 /* Server */
-#define SERVER_PORT 80
-#define SERVER_ASYNC false
+#define WEB_SERVER_PORT 80
+#define STREAM_SERVER_PORT WEB_SERVER_PORT + 1
 
 /* Access Point */
 #define ENABLE_ACCESS_POINT true

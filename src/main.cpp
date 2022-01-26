@@ -7,8 +7,8 @@
 #include "camera/camera.h"
 #include "configuration.h"
 
-result_t start_server_sync();
-result_t start_server_async();
+result_t start_web_server(uint8_t server_port);
+result_t start_stream_server(uint8_t server_port);
 
 void setup() {
   result_t res = RESULT_OK;
@@ -76,12 +76,11 @@ void setup() {
   /* Start camera */
   if (start_camera() != RESULT_OK) res = RESULT_FAIL;
 
-  /* Start server */
-  #if SERVER_ASYNC
-    if (start_server_async() != RESULT_OK) res = RESULT_FAIL;
-  #else
-    if (start_server_sync() != RESULT_OK) res = RESULT_FAIL;
-  #endif
+  /* Web Server */
+  if (start_web_server(WEB_SERVER_PORT) != RESULT_OK) res = RESULT_FAIL;
+
+  /* Stream Server */
+  if (start_stream_server(STREAM_SERVER_PORT) != RESULT_OK) res = RESULT_FAIL;
 
   if (res != RESULT_OK) exit(EXIT_FAILURE);
 }
