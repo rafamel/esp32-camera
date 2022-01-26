@@ -1,8 +1,10 @@
 #include "Arduino.h"
+#include "result.h"
 #include "http.h"
 
-#include "../camera/camera.h"
 #include "../configuration.h"
+#include "../camera/camera.h"
+#include "../store/store.h"
 #include "./handlers.h"
 
 static const char* api_error = "{ \"error\": true }";
@@ -59,12 +61,18 @@ handler_response_t* handler_api_params() {
 
 handler_response_t* handler_api_status() {
   StaticJsonDocument<1024> doc;
-
-  get_camera_status(&doc);
-  doc["flashled"] = digitalRead(STATUS_LED_PIN) == HIGH ? 1 : 0;
-
   String json;
-  return serializeJsonPretty(doc, json)
+
+  result_t res = get_camera_status(&doc);
+
+  if (res == RESULT_OK) {
+    doc["flashled"] = digitalRead(STATUS_LED_PIN) == HIGH ? 1 : 0;
+    doc["stream_fps"] = store_get_stream_fps();
+
+    res = serializeJsonPretty(doc, json) ? RESULT_OK : RESULT_FAIL;
+  }
+
+  return res == RESULT_OK
     ? create_response(HTTP_200, "application/json", (char*) json.c_str())
     : create_response(HTTP_500, "application/json", (char*) api_error);
 }
@@ -80,16 +88,18 @@ handler_response_t* handler_api_control(char* property, char* value) {
   }
 
   int digit = atoi(value);
-  bool success = true;
+  result_t res = RESULT_OK;
 
   if (!strcmp(property, "flashled")) {
     if (digit > 0) digitalWrite(STATUS_LED_PIN, HIGH);
     else digitalWrite(STATUS_LED_PIN, LOW);
+  } if (!strcmp(property, "stream_fps")) {
+    store_set_stream_fps(digit);
   } else {
-    success = set_camera_status_property(property, digit) == ESP_OK;
+    res = set_camera_status_property(property, digit);
   }
 
-  return success
+  return res == RESULT_OK
     ? create_response(HTTP_200, "application/json", (char*) api_success)
     : create_response(HTTP_500, "application/json", (char*) api_error);
 }

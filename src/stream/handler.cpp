@@ -1,7 +1,9 @@
 #include "Arduino.h"
 #include "esp_http_server.h"
 
+#include "../configuration.h"
 #include "../camera/camera.h"
+#include "../store/store.h"
 #include "./constants.h"
 
 esp_err_t handler_stream(httpd_req_t *req) {
@@ -18,7 +20,13 @@ esp_err_t handler_stream(httpd_req_t *req) {
     return res;
   }
 
+  int64_t time_start;
+  int64_t time_wait;
+  int max_fps = 100;
+  int time_per_frame = 0;
   while (true) {
+    time_start = esp_timer_get_time();
+
     cycle_capture = get_camera_capture();
     if (cycle_capture == NULL) res = ESP_FAIL;
 
@@ -58,6 +66,11 @@ esp_err_t handler_stream(httpd_req_t *req) {
     }
 
     if (res != ESP_OK) break;
+
+    max_fps = store_get_stream_fps();
+    time_per_frame = 1000000 / max_fps;
+    time_wait = time_per_frame - (esp_timer_get_time() - time_start);
+    if (time_wait > 0) delay(time_wait / 1000);
   }
 
   Serial.println("Camera stream: stop");

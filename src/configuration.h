@@ -14,9 +14,12 @@
 /* Services */
 #define HOST_NAME "camera"
 
-/* Server */
+/* Web Server */
 #define WEB_SERVER_PORT 80
+
+/* Stream Server */
 #define STREAM_SERVER_PORT WEB_SERVER_PORT + 1
+#define STREAM_DEFAULT_FPS 15
 
 /* Access Point */
 #define ENABLE_ACCESS_POINT true

@@ -29,6 +29,12 @@
       }
     }
   },
+  "stream_fps": {
+    "type": "range",
+    "name": "Max. FPS",
+    "models": ["OV2640", "OV3660"],
+    "defaults": { "min": 1, "max": 100 }
+  },
   "quality": {
     "type": "range",
     "name": "Quality",

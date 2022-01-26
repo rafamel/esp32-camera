@@ -31,15 +31,6 @@ void setup() {
     WiFi.begin(WIFI_CONNECTION_SSID, WIFI_CONNECTION_PASSWORD);
     Serial.print("Connecting to WiFi: ");
     Serial.println(WIFI_CONNECTION_SSID);
-    // delay(500);
-    // while (WiFi.status() != WL_CONNECTED) {
-    //   Serial.print(".");
-    //   delay(500);
-    // }
-    // IPAddress WIFI_IP = WiFi.localIP();
-    // Serial.println("");
-    // Serial.print("WiFi IP: ");
-    // Serial.println(WIFI_IP);
   #endif
 
   /* Access Point */
