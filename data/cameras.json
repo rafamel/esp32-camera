@@ -1,0 +1,216 @@
+{
+  "framesize": {
+    "type": "select",
+    "name": "Resolution",
+    "models": ["OV2640", "OV3660"],
+    "values": {
+      "OV2640": {
+        "10": "UXGA(1600x1200)",
+        "9": "SXGA(1280x1024)",
+        "8": "XGA(1024x768)",
+        "7": "SVGA(800x600)",
+        "6": "VGA(640x480)",
+        "5": "CIF(400x296)",
+        "4": "QVGA(320x240)",
+        "3": "HQVGA(240x176)",
+        "0": "QQVGA(160x120)"
+      },
+      "OV3660": {
+        "11": "QXGA(2048x1564)",
+        "10": "UXGA(1600x1200)",
+        "9": "SXGA(1280x1024)",
+        "8": "XGA(1024x768)",
+        "7": "SVGA(800x600)",
+        "6": "VGA(640x480)",
+        "5": "CIF(400x296)",
+        "4": "QVGA(320x240)",
+        "3": "HQVGA(240x176)",
+        "0": "QQVGA(160x120)"
+      }
+    }
+  },
+  "quality": {
+    "type": "range",
+    "name": "Quality",
+    "models": ["OV2640", "OV3660"],
+    "values": {
+      "OV2640": { "min": 10, "max": 63 },
+      "OV3660": { "min": 4, "max": 63 }
+    }
+  },
+  "brightness": {
+    "type": "range",
+    "name": "Brightness",
+    "models": ["OV2640", "OV3660"],
+    "values": {
+      "OV2640": { "min": -2, "max": 2 },
+      "OV3660": { "min": -3, "max": 3 }
+    }
+  },
+  "contrast": {
+    "type": "range",
+    "name": "Contrast",
+    "models": ["OV2640", "OV3660"],
+    "values": {
+      "OV2640": { "min": -2, "max": 2 },
+      "OV3660": { "min": -3, "max": 3 }
+    }
+  },
+  "saturation": {
+    "type": "range",
+    "name": "Saturation",
+    "models": ["OV2640", "OV3660"],
+    "values": {
+      "OV2640": { "min": -2, "max": 2 },
+      "OV3660": { "min": -4, "max": 4 }
+    }
+  },
+  "sharpness": {
+    "type": "range",
+    "name": "Sharpness",
+    "models": ["OV3660"],
+    "values": {
+      "OV3660": { "min": -3, "max": 3 }
+    }
+  },
+  "denoise": {
+    "type": "range",
+    "name": "Denoise",
+    "models": ["OV3660"],
+    "values": {
+      "OV3660": { "min": 0, "max": 8 }
+    }
+  },
+  "special_effect": {
+    "type": "select",
+    "name": "Special Effect",
+    "models": ["OV2640", "OV3660"],
+    "defaults": {
+      "0": "No Effect",
+      "1": "Negative",
+      "2": "Grayscale",
+      "3": "Red Tint",
+      "4": "Green Tint",
+      "5": "Blue Tint",
+      "6": "Sepia"
+    }
+  },
+  "awb": {
+    "type": "switch",
+    "name": "AWB",
+    "models": ["OV2640", "OV3660"]
+  },
+  "awb_gain": {
+    "type": "switch",
+    "name": "AWB Gain",
+    "models": ["OV2640", "OV3660"]
+  },
+  "wb_mode": {
+    "type": "select",
+    "name": "AWB Mode",
+    "models": ["OV2640", "OV3660"],
+    "defaults": {
+      "0": "Auto",
+      "1": "Sunny",
+      "2": "Cloudy",
+      "3": "Office",
+      "4": "Home"
+    }
+  },
+  "dcw": {
+    "type": "switch",
+    "name": "AWB Downsize",
+    "models": ["OV2640", "OV3660"]
+  },
+  "aec": {
+    "type": "switch",
+    "name": "AEC",
+    "models": ["OV2640", "OV3660"]
+  },
+  "aec_value": {
+    "type": "range",
+    "name": "AEC Manual Exposure",
+    "models": ["OV2640", "OV3660"],
+    "values": {
+      "OV2640": { "min": 0, "max": 1200 },
+      "OV3660": { "min": 0, "max": 1536 }
+    }
+  },
+  "aec2": {
+    "type": "switch",
+    "name": "AEC DSP Night Mode",
+    "models": ["OV2640", "OV3660"]
+  },
+  "ae_level": {
+    "type": "range",
+    "name": "AE Exposure Level",
+    "models": ["OV2640", "OV3660"],
+    "values": {
+      "OV2640": { "min": -2, "max": 2 },
+      "OV3660": { "min": -5, "max": 5 }
+    }
+  },
+  "agc": {
+    "type": "switch",
+    "name": "AGC",
+    "models": ["OV2640", "OV3660"]
+  },
+  "agc_gain": {
+    "type": "range",
+    "name": "AGC Gain",
+    "models": ["OV2640", "OV3660"],
+    "values": {
+      "OV2640": { "min": 0, "max": 30 },
+      "OV3660": { "min": 0, "max": 64 }
+    }
+  },
+  "gainceiling": {
+    "type": "range",
+    "name": "Gain Ceiling",
+    "models": ["OV2640", "OV3660"],
+    "values": {
+      "OV2640": { "min": 0, "max": 6 },
+      "OV3660": { "min": 0, "max": 511 }
+    }
+  },
+  "bpc": {
+    "type": "switch",
+    "name": "BPC",
+    "models": ["OV2640", "OV3660"]
+  },
+  "wpc": {
+    "type": "switch",
+    "name": "WPC",
+    "models": ["OV2640", "OV3660"]
+  },
+  "raw_gma": {
+    "type": "switch",
+    "name": "Raw GMA",
+    "models": ["OV2640", "OV3660"]
+  },
+  "lenc": {
+    "type": "switch",
+    "name": "Lens Correction",
+    "models": ["OV2640", "OV3660"]
+  },
+  "hmirror": {
+    "type": "switch",
+    "name": "H-Mirror",
+    "models": ["OV2640", "OV3660"]
+  },
+  "vflip": {
+    "type": "switch",
+    "name": "V-Flip",
+    "models": ["OV2640", "OV3660"]
+  },
+  "colorbar": {
+    "type": "switch",
+    "name": "Color Bars",
+    "models": ["OV2640", "OV3660"]
+  },
+  "flashled": {
+    "type": "switch",
+    "name": "Flash LED",
+    "models": ["OV2640", "OV3660"]
+  }
+}

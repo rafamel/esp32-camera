@@ -29,6 +29,7 @@ result_t start_server_sync() {
 
   /* Web */
   static httpd_handle_t web_httpd = NULL;
+  config.max_uri_handlers = 32;
   config.server_port = SERVER_PORT;
   config.ctrl_port = SERVER_PORT;
 
@@ -67,15 +68,45 @@ result_t start_server_sync() {
   };
   httpd_register_uri_handler(web_httpd, &styles_uri);
 
-  httpd_uri_t scripts_uri = {
-    .uri       = "/scripts.js",
+  httpd_uri_t cameras_uri = {
+    .uri       = "/cameras.json",
     .method    = HTTP_GET,
     .handler   = ([](httpd_req_t *req) {
-      return handler_file_sync(req, SPIFFS, "/scripts.js", "text/javascript");
+      return handler_file_sync(req, SPIFFS, "/cameras.json", "application/json");
     }),
     .user_ctx  = NULL
   };
-  httpd_register_uri_handler(web_httpd, &scripts_uri);
+  httpd_register_uri_handler(web_httpd, &cameras_uri);
+
+  httpd_uri_t app_uri = {
+    .uri       = "/app.js",
+    .method    = HTTP_GET,
+    .handler   = ([](httpd_req_t *req) {
+      return handler_file_sync(req, SPIFFS, "/app.js", "text/javascript");
+    }),
+    .user_ctx  = NULL
+  };
+  httpd_register_uri_handler(web_httpd, &app_uri);
+  
+  httpd_uri_t htm_uri = {
+    .uri       = "/lib/htm.module.js",
+    .method    = HTTP_GET,
+    .handler   = ([](httpd_req_t *req) {
+      return handler_file_sync(req, SPIFFS, "/lib/htm.module.js", "text/javascript");
+    }),
+    .user_ctx  = NULL
+  };
+  httpd_register_uri_handler(web_httpd, &htm_uri);
+  
+  httpd_uri_t preact_uri = {
+    .uri       = "/lib/preact.module.js",
+    .method    = HTTP_GET,
+    .handler   = ([](httpd_req_t *req) {
+      return handler_file_sync(req, SPIFFS, "/lib/preact.module.js", "text/javascript");
+    }),
+    .user_ctx  = NULL
+  };
+  httpd_register_uri_handler(web_httpd, &preact_uri);
 
   httpd_uri_t api_params_uri = {
     .uri       = "/api/params",

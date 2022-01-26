@@ -55,8 +55,20 @@ result_t start_server_async() {
     request->send(SPIFFS, "/styles.css", "text/css");
   });
 
-  server.on("/scripts.js", HTTP_ANY, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/scripts.js", "text/javascript");
+  server.on("/cameras.json", HTTP_ANY, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/cameras.json", "application/json");
+  });
+
+  server.on("/app.js", HTTP_ANY, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/app.js", "text/javascript");
+  });
+
+  server.on("/lib/htm.module.js", HTTP_ANY, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/lib/htm.module.js", "text/javascript");
+  });
+
+  server.on("/lib/preact.module.js", HTTP_ANY, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/lib/preact.module.js", "text/javascript");
   });
 
   /* Params */

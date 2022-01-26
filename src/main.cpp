@@ -1,7 +1,7 @@
+#include "Arduino.h"
 #include <WiFi.h>
 #include <ESPmDNS.h>
 #include <SPIFFS.h>
-#include "Arduino.h"
 #include "result.h"
 
 #include "camera/camera.h"

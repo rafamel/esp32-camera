@@ -49,6 +49,7 @@ handler_response_t* handler_api_params() {
   StaticJsonDocument<512> doc;
 
   doc["streamPort"] = SERVER_ASYNC ? SERVER_PORT : SERVER_PORT + 1;
+  doc["cameraModel"] = get_camera_model();
 
   String json;
   return serializeJsonPretty(doc, json)
